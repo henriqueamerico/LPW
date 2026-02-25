@@ -52,16 +52,11 @@ echo "<th>Fim</th>";
 
 
 // dados
-foreach ($presidentes as $pre){
+foreach ($presidentes as $p){
     echo "<tr>";
-    echo "<td>" . $p['Numero'] . "</td>";
-    echo "<td>" . $p['Nome'] . "</td>";
-    echo "<td>" . $p['Inicio'] . "</td>";
-    echo "<td>" . $p['Fim'] . "</td>";
+    echo "<td>" . $p->getNumero(). "</td>";
+    echo "<td>" . $p->getNome() . "</td>";
+    echo "<td>" . $p->getInicio() . "</td>";
+    echo "<td>" . $p->getFim() . "</td>";
     echo "</tr>";
 }
-
-
-
-
-
