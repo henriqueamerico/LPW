@@ -1,46 +1,30 @@
 <?php
-require_once("modelo/Pokemon.php");
+require_once("pkms.php");
 
-// Criar os objetos
-    $pokemon1 = new Pokemon();
-    $pokemon1->setNome("Squirtle");
-    $pokemon1->setImagem("https://img.pokemondb.net/artwork/avif/squirtle.avif");
+$rand = rand(0, count($pkms) - 1);
 
-    $pokemon2 = new Pokemon();
-    $pokemon2->setNome("Garchomp");
-    $pokemon2->setImagem("https://www.serebii.net/swordshield/pokemon/445.png");
+if (!isset($_GET["palpite"])) {
+    echo "<h1>Erro!</h1>";
+    echo "<p>Voce precisa informar o parametro palpite na URL.</p>";
+} else {
+    $palpite = $_GET["palpite"];
 
-    $pokemon3 = new Pokemon();
-    $pokemon3->setNome("Gengar");
-    $pokemon3->setImagem("https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/094.png");
-
-    echo '<img src="' . $pokemon1->getImagem() . '" alt="">';
-    echo '<img src="' . $pokemon2->getImagem() . '" alt="">';
-    echo '<img src="' . $pokemon3->getImagem() . '" alt="">';
-
-    $palpites = array($pokemon1, $pokemon2, $pokemon3);
-
-// Sortear um dos objetos para ser o palpite correto
-
-// Receber o palpite ($_GET) e mostrar se o usuário acertou ou errou
-$palpites = "";
-if(isset($_GET['palpite']))
-    $palpites = $_GET['palpites'];
-
-if($palpites == '1') {
-   
-
-} else if($palpites == '2') {
-    
-    
-
- } else if($palpites == '3'){
-    
-
- }
-
-    else { echo "Parâmetro [palpite] com valor inválido";
+    if ($palpite == $rand) {
+        echo "<h1>Parabens! Voce acertou!</h1>";
+    } else {
+        echo "<h1>Errou!</h1>";
+        echo "<p>O correto era: " . $pkms[$rand]->getNome() . "</p>";
+    }
 }
 
 
-//http://localhost/LPW-main/Henrique/exer_aula4/jogo.php
+for ($i = 0; $i < count($pkms); $i++) {
+    echo "<div style='display:inline-block; text-align:center; margin:120px'>";
+    
+    echo "<img src='" . $pkms[$i]->getLink() . "' width='250'><br>";
+    
+    echo "Opcao " . ($i + 1);
+    
+    echo "</div>";
+}
+?>
