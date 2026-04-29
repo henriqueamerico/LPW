@@ -10,7 +10,25 @@ $conexao = Conexao::getConexao();
 //print_r($conexao);
 
 // Salvar o livro
+if(isset($_POST['titulo'])) {
+    // 1- receber os dados do formulário
+    $titulo = $_POST['titulo'];
+    $genero = $_POST['genero'];
+    $qtdPag = $_POST['paginas'];
+    $autor = $_POST['autor'];
 
+    //echo $titulo . " - " . $genero . " - " . $qtdPag;
+
+    // 2- Inserir o livro no banco de dados
+    $sql = "INSERT INTO livros (titulo, genero, qtd_paginas, autor)
+            VALUES (? , ? , ? , ?)";
+    $stmt = $conexao->prepare($sql);
+    $stmt->execute([$titulo, $genero, $qtdPag, $autor]);
+
+    // 3- Redirecionar para a página de listagem
+    header("Location: livros.php");
+
+}
 
 // Listagem dos livros
 $sql = "SELECT * FROM livros";
@@ -41,13 +59,15 @@ $livros = $stmt->fetchAll();
             <th>Título</th>
             <th>Gênero</th>
             <th>Páginas</th>
+            <th>Autor</th>
          </tr>
 
          <!-- Dados -->
           <?php foreach($livros as $l): ?>
             <tr>
                 <td><?= $l["id"] ?></td>  
-                <td><?= $l["titulo"] ?></td>  
+                <td><?= $l["titulo"] ?></td>
+                
                 <td>
                    <?php
                    switch ($l["genero"]) {
@@ -60,12 +80,20 @@ $livros = $stmt->fetchAll();
                     case "R":
                         echo "Romance";
                         break;
+
                     default:
                         echo "Outro";
                    }
                    ?>
                 </td>  
-                <td><?= $l["qtd_paginas"] ?></td>  
+                <td><?= $l["qtd_paginas"] ?></td> 
+                <td><?= $l["autor"] ?></td> 
+            
+            <td>
+                <a href="livros_excluir.php?id=<?= $l['id'] ?>"
+                        onclick="if (! confirm('Você jura pela vida da sua mãe que vc quer excluir?')) return false"
+                    >Excluir</a>
+            </td>
             </tr>
         <?php endforeach; ?>
 
@@ -90,6 +118,11 @@ $livros = $stmt->fetchAll();
 
     <input type="number" name= "paginas"
     placeholder="Informe o número de páginas">
+
+    <br><br>
+
+    <input type="text" placeholder="Informe o Autor"
+    name="autor">
 
     <br><br>
 
