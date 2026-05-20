@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 // exibir erros
 ini_set('display_errors', 1);
@@ -8,12 +8,26 @@ require_once("util/Conexao.php");
 
 $conexao = Conexao::getConexao();
 //print_r($conexao);
+
+$msgErro = "";
+
+$titulo = "";
+$genero = "";
+$qtdPag = "";
+$autor = "";
+
 if (isset($_POST['titulo'])) {
     // 1- receber os dados do formulário
     $titulo = trim($_POST['titulo']) ? trim($_POST['titulo']) : null;
     $genero = trim($_POST['genero']) ? trim($_POST['genero']) : null;
     $qtdPag = is_numeric($_POST['paginas']) ? $_POST['paginas'] : null;
     $autor = trim($_POST['autor']) ? trim($_POST['autor']) : null;
+
+    // ver se o titulo já existe
+    $sql = "SELECT titulo FROM livros WHERE titulo = ?";
+    $stm = $conexao->prepare($sql);
+    $stm->execute([$titulo]);
+    $verificador = $stm->fetchAll();
 
 
 
@@ -22,12 +36,28 @@ if (isset($_POST['titulo'])) {
     $autor = $_POST['autor'];
 
     // 1.1 - Validar os dados
+    $msgs = array();
+    if(! $titulo){
+        array_push($msgs, "Informe o título!!");
+    } else if (strlen($titulo) < 2 || strlen($titulo) > 50) { 
+        array_push($msgs, "O título deve conter entre 2 e 50 caracteres!!");
 
+    } else if ($verificador) {
+        array_push($msgs, "Esse título já existe!!");
+    }
 
+    if(! $genero)
+        array_push($msgs, "Informe o gênero!!");
 
-    //echo $titulo . " - " . $genero . " - " . $qtdPag;
+    if(! $qtdPag)
+        array_push($msgs, "Informe o número de paginas!!");
 
-    // 2- Inserir o livro no banco de dados
+    if(! $autor)
+        array_push($msgs, "Informe o autor!!");
+
+    if(empty($msgs)) {
+        
+   // 2- Inserir o livro no banco de dados
     $sql = "INSERT INTO livros (titulo, genero, qtd_paginas, autor)
             VALUES (? , ? , ? , ?)";
     $stmt = $conexao->prepare($sql);
@@ -35,6 +65,15 @@ if (isset($_POST['titulo'])) {
 
     // 3- Redirecionar para a página de listagem
     header("Location: livros.php");
+
+    } else {
+        // Exibir as msg de erro
+        $msgErro = implode("<br>", $msgs);
+        
+    }
+
+
+    
 }
 
 // Listagem dos livros
@@ -112,26 +151,37 @@ $livros = $stmt->fetchAll();
     <form action="" method="POST">
 
         <input type="text" placeholder="Informe o título"
-            name="titulo" id="titulo">
+            name="titulo" id="titulo"
+            value="<?= $titulo ?>"> 
 
         <br><br>
 
         <select name="genero" id="genero">
             <option value="">---Selecione o gênero---</option>
-            <option value="D">Drama</option>
-            <option value="F">Ficção</option>
-            <option value="R">Romance</option>
-        </select>
+            <option value="D" <?= $genero == "D" ? "selected" : "" ?> >
+                Drama</option> 
+            <option value="F" <?= $genero == "F" ? "selected" : "" ?>>
+                Ficção</option>
+            <option value="R" <?= $genero == "R" ? "selected" : "" ?>>
+                Romance</option>
+            <option value="O" <?= $genero == "O" ? "selected" : "" ?>>
+                Outro</option>
+            
 
+            
+        </select>  
+ 
         <br><br>
 
         <input type="number" name="paginas" id="paginas"
-            placeholder="Informe o número de páginas">
+            placeholder="Informe o número de páginas"
+            value="<?= $qtdPag ?>"> 
 
         <br><br>
 
         <input type="text" placeholder="Informe o Autor"
-            name="autor" id="autor">
+            name="autor" id="autor"
+            value="<?= $autor ?>"> 
 
         <br><br>
 
@@ -143,6 +193,10 @@ $livros = $stmt->fetchAll();
         Exemplo de erro!
     </div>
 
+    <div style="color: red;">
+        <?= $msgErro ?>
+    </div>
+                        
     <script src="validacao.js"></script>
 
 </body>
